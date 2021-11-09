@@ -1,4 +1,10 @@
-#https://www.r-bloggers.com/2019/07/excel-report-generation-with-shiny/
+#  Data Request Processsing script using Shiny and ERICDataProc package
+#  Anne Donnelly
+#  Initial version - 09/11/21
+#
+# See https://github.com/ERICNorthEast/DataRequest for code
+#
+# Shiny code baased on https://www.r-bloggers.com/2019/07/excel-report-generation-with-shiny/
 
 library(ERICDataProc)
 options(shiny.maxRequestSize=50*1024^2)

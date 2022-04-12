@@ -1,15 +1,17 @@
 #  Data Request Processsing script using Shiny and ERICDataProc package
 #  Anne Donnelly
 #  Initial version - 09/11/21
+#  Updated re package changes - 12/04/22
 #
 # See https://github.com/ERICNorthEast/DataRequest for code
 #
 # Shiny code baased on https://www.r-bloggers.com/2019/07/excel-report-generation-with-shiny/
 
 library(ERICDataProc)
-options(shiny.maxRequestSize=50*1024^2)
+options(shiny.maxRequestSize=100*1024^2)
 
 
+version_no <- "Version 1.1"
 DR_config <- setup_DR_config_values()
 OutputCols <- DR_config["DROutputColsWithDist"]
 newColNames <- DR_config["DRColNamesWithDist"]
@@ -26,6 +28,8 @@ TV_DESIGS <- DR_config["TV_DESIGS"]
   # minimal Shiny UI
 ui <- fluidPage(
   titlePanel("Commercial data request"),
+
+  textOutput("version"),
   tags$br(),
 
   fileInput("csvfile", "Choose CSV File",
@@ -68,8 +72,12 @@ ui <- fluidPage(
 # minimal Shiny server
 server <- function(input, output) {
 
+  #output$version <- renderText("Version 1.0")
+  output$version <- renderText(version_no)
 
   output$okBtn <- downloadHandler(
+
+
     filename = function() {
 
       ifelse(stringr::str_ends(input$outputfile,'xlsx'),input$outputfile,paste0(input$outputfile,'.xlsx'))
@@ -107,7 +115,6 @@ server <- function(input, output) {
 
       raw_data <- read.csv(inFile$datapath,header = TRUE)
 
-
       #Format the date
       raw_data$Sample.Dat <- formatDates(raw_data$Sample.Dat)
 
@@ -124,7 +131,7 @@ server <- function(input, output) {
       raw_data <- do_data_fixes(raw_data)
 
       #Sort out designations (EA doesn't need this)
-      raw_data <- fix_designations(raw_data)
+      raw_data <- fix_designations(raw_data,FALSE)
 
 
       # Easting & northing calculations
@@ -148,7 +155,6 @@ server <- function(input, output) {
       }
 
       #Format and output to Excel
-
       outputdata <- format_and_check_data(pandn_data,OutputCols, newColNames, input$sensitivecheck)
 
       sheet_name = 'Protected & Notable Species'
